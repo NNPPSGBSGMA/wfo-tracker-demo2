@@ -1,0 +1,671 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.login-container {
+    max-width: 500px;
+    margin: 100px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.login-container h2 {
+    color: #1e3c72;
+    margin-bottom: 30px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+.form-group input {
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #666;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.login-btn {
+    background: #4a90e2;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-btn:hover {
+    background: #357abd;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    display: none;
+    border-left: 4px solid #c62828;
+}
+
+.warning-message {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    display: none;
+    border-left: 4px solid #ffc107;
+}
+
+.header {
+    background: #1e3c72;
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    font-family: Arial, sans-serif;
+}
+
+.header-left p {
+    font-family: Arial, sans-serif;
+}
+
+.header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-email {
+    font-size: 14px;
+    opacity: 0.9;
+    font-family: Arial, sans-serif;
+}
+
+.user-code {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.admin-badge {
+    background: #ffc107;
+    color: #000;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.logout-btn, .export-btn, .submit-btn, .report-btn {
+    background: white;
+    color: #1e3c72;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover, .export-btn:hover, .report-btn:hover {
+    background: #f0f4f8;
+}
+
+.submit-btn {
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    padding: 12px 30px;
+}
+
+.submit-btn:hover {
+    background: #218838;
+}
+
+.submit-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.report-btn {
+    background: #ff9800;
+    color: white;
+    display: none;
+}
+
+.report-btn:hover {
+    background: #f57c00;
+}
+
+.action-bar {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 2px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.month-selector {
+    flex: 1;
+    min-width: 200px;
+}
+
+.month-selector select {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.month-selector select:hover {
+    border-color: #357abd;
+}
+
+.calendar-container {
+    padding: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    font-family: Arial, sans-serif;
+    min-width: 1200px;
+}
+
+th {
+    background: #2a5298;
+    color: white;
+    padding: 10px 5px;
+    text-align: center;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border: 1px solid #1e3c72;
+}
+
+th.member-col {
+    background: #1e3c72;
+    min-width: 80px;
+}
+
+td {
+    padding: 4px 2px;
+    text-align: center;
+    border: 1px solid #000;
+    transition: all 0.2s;
+    background: white;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    position: relative;
+    min-width: 80px;
+}
+
+td.editable {
+    cursor: pointer;
+}
+
+td.locked {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+td.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    opacity: 0.5;
+}
+
+.member-name {
+    background: #e9ecef;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 10px;
+    cursor: default;
+    font-family: Arial, sans-serif;
+}
+
+.current-user-row .member-name {
+    background: #ffe6cc !important;
+    color: #d84315;
+    font-weight: bold;
+}
+
+.current-user-row td:not(.member-name) {
+    background: #fff3e0 !important;
+}
+
+.current-user-row td.planning {
+    background-color: #FFFF00 !important;
+}
+
+.current-user-row td.office {
+    background-color: #00FF00 !important;
+}
+
+.current-user-row td.leave {
+    background-color: #FFC0CB !important;
+}
+
+.current-user-row td.travel {
+    background-color: #ADD8E6 !important;
+}
+
+.current-user-row td.weekend {
+    background-color: #D3D3D3 !important;
+}
+
+.current-user-row td.holiday {
+    background-color: #A9A9A9 !important;
+}
+
+.readonly {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.day-header {
+    font-size: 10px;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+}
+
+/* Status Colors */
+.planning {
+    background-color: #FFFF00 !important;
+    color: black;
+}
+
+.office {
+    background-color: #00FF00 !important;
+    color: black;
+}
+
+.leave {
+    background-color: #FFC0CB !important;
+    color: black;
+}
+
+.travel {
+    background-color: #ADD8E6 !important;
+    color: black;
+}
+
+.weekend {
+    background-color: #D3D3D3 !important;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.holiday {
+    background-color: #A9A9A9 !important;
+    color: white;
+    cursor: not-allowed;
+    font-weight: bold;
+}
+
+/* Cell Dropdown with Colored Dots */
+.cell-dropdown {
+    width: 100%;
+    padding: 4px;
+    font-size: 10px;
+    font-family: Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+}
+
+.cell-dropdown:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.cell-dropdown option {
+    padding: 5px;
+    font-size: 11px;
+}
+
+/* Colored dots for dropdown options */
+.cell-dropdown option[value="planning"] {
+    background: linear-gradient(90deg, #FFFF00 0%, #FFFF00 12px, white 12px);
+    font-weight: 600;
+}
+
+.cell-dropdown option[value="office"] {
+    background: linear-gradient(90deg, #00FF00 0%, #00FF00 12px, white 12px);
+    font-weight: 600;
+}
+
+.cell-dropdown option[value="leave"] {
+    background: linear-gradient(90deg, #FFC0CB 0%, #FFC0CB 12px, white 12px);
+    font-weight: 600;
+}
+
+.cell-dropdown option[value="travel"] {
+    background: linear-gradient(90deg, #ADD8E6 0%, #ADD8E6 12px, white 12px);
+    font-weight: 600;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 2px solid #dee2e6;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.legend-color {
+    width: 30px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #000;
+}
+
+.stats {
+    padding: 20px;
+    background: #f8f9fa;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.stat-card p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2a5298;
+    font-family: Arial, sans-serif;
+}
+
+.holidays-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 2px solid #dee2e6;
+}
+
+.holidays-section h3 {
+    color: #1e3c72;
+    margin-bottom: 15px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.holidays-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.holiday-item {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #A9A9A9;
+    font-family: Arial, sans-serif;
+}
+
+.pending-changes {
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    display: none;
+    border-left: 4px solid #28a745;
+}
+
+.security-notice {
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 12px 20px;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    border-left: 4px solid #2196f3;
+    font-size: 14px;
+}
+
+.admin-notice {
+    background: #fff8e1;
+    color: #f57f17;
+    padding: 12px 20px;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    border-left: 4px solid #ffc107;
+    font-size: 14px;
+    display: none;
+}
+
+.security-violation {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    border-left: 4px solid #d32f2f;
+    font-weight: bold;
+    display: none;
+}
+
+/* Report Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.modal-header h2 {
+    color: #1e3c72;
+    font-family: Arial, sans-serif;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.report-section {
+    margin-bottom: 30px;
+}
+
+.report-section h3 {
+    color: #2a5298;
+    margin-bottom: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.report-table th,
+.report-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+.report-table th {
+    background: #2a5298;
+    color: white;
+}
+
+.report-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+    
+    table {
+        font-size: 9px;
+    }
+}
