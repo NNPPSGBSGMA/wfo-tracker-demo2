@@ -9,11 +9,11 @@
 <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
-        <h2>Global Medical Affairs - Sign In</h2>
+        <h2>GMA, P&PS GBS</h2>
         <div class="error-message" id="errorMessage"></div>
         <form class="login-form" onsubmit="handleLogin(event)">
             <div class="form-group">
-                <label for="userCode">Enter Your User Code</label>
+                <label for="userCode">Enter you Initials</label>
                 <input
                     type="text"
                     id="userCode"
@@ -25,9 +25,9 @@
                     title="Please enter exactly 4 letters"
                     autocomplete="off"
                 >
-                <div class="form-hint">Enter your 4-letter Novo Nordisk code (e.g., AJLO, NRVL)</div>
+                <div class="form-hint">Please enter only your Initials to update the data</div>
             </div>
-            <button type="submit" class="login-btn">Sign In</button>
+            <button type="submit" class="login-btn">Open the tracker</button>
         </form>
     </div>
 
@@ -43,7 +43,7 @@
                     <div class="user-code" id="displayUserCode"></div>
                     <div class="user-email" id="userEmail"></div>
                 </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <button class="logout-btn" onclick="window.location.href='login.html'">Logout</button>
             </div>
         </div>
 

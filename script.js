@@ -121,16 +121,12 @@ function handleLogin(event) {
 
 // Logout
 function logout() {
-    sessionStorage.removeItem('currentUser');
-    sessionStorage.removeItem('authToken');
-    currentUser = null;
-    pendingChanges = {};
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('userCode').value = '';
-    document.getElementById('errorMessage').style.display = 'none';
-    document.getElementById('adminNotice').style.display = 'none';
-    document.getElementById('reportBtn').style.display = 'none';
+    // Clear any stored session data
+    sessionStorage.clear();
+    localStorage.clear();
+    
+    // Redirect to login page
+    window.location.href = 'login.html';
 }
 
 // Verify user authentication
