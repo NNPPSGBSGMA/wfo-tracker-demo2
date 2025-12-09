@@ -1,21 +1,14 @@
 // Global Variables
-let currentMonth = 0; // January 2026
+let currentMonth = 0;
 let attendanceData = {};
 let pendingChanges = {};
 let hasUnsavedChanges = false;
 
 // Holidays for 2026
 const HOLIDAYS_2026 = [
-    '2026-01-15', // Makara Sankranti
-    '2026-01-26', // Republic Day
-    '2026-03-19', // Ugadi Festival
-    '2026-05-01', // May Day
-    '2026-05-28', // Bakrid
-    '2026-09-14', // Ganesh Chaturthi
-    '2026-10-02', // Gandhi Jayanti
-    '2026-10-20', // Ayudha Puja / Mahanavami
-    '2026-11-10', // Balipadyami / Deepavali
-    '2026-12-25'  // Christmas
+    '2026-01-15', '2026-01-26', '2026-03-19', '2026-05-01',
+    '2026-05-28', '2026-09-14', '2026-10-02', '2026-10-20',
+    '2026-11-10', '2026-12-25'
 ];
 
 // Month abbreviations
@@ -33,20 +26,46 @@ const STATUS_OPTIONS = [
 // Initialize Calendar on Load
 function initializeCalendar() {
     loadAttendanceData();
-    renderCalendar();
 }
 
-// Load Attendance Data from LocalStorage
+// Load Attendance Data from Firebase
 function loadAttendanceData() {
-    const saved = localStorage.getItem('attendanceData_2026');
-    if (saved) {
-        attendanceData = JSON.parse(saved);
-    }
+    const dbRef = window.firebaseRef(window.firebaseDB, 'attendanceData');
+    
+    window.firebaseGet(dbRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            attendanceData = snapshot.val();
+        } else {
+            attendanceData = {};
+        }
+        renderCalendar();
+        
+        // Listen for real-time updates
+        window.firebaseOnValue(dbRef, (snapshot) => {
+            if (snapshot.exists()) {
+                attendanceData = snapshot.val();
+                renderCalendar();
+            }
+        });
+    }).catch((error) => {
+        console.error('Error loading data:', error);
+        attendanceData = {};
+        renderCalendar();
+    });
 }
 
-// Save Attendance Data to LocalStorage
+// Save Attendance Data to Firebase
 function saveAttendanceData() {
-    localStorage.setItem('attendanceData_2026', JSON.stringify(attendanceData));
+    const dbRef = window.firebaseRef(window.firebaseDB, 'attendanceData');
+    
+    return window.firebaseSet(dbRef, attendanceData)
+        .then(() => {
+            console.log('Data saved successfully to Firebase');
+        })
+        .catch((error) => {
+            console.error('Error saving data:', error);
+            alert('Failed to save data. Please try again.');
+        });
 }
 
 // Get Days in Month
@@ -58,18 +77,18 @@ function getDaysInMonth(year, month) {
 function isWeekend(year, month, day) {
     const date = new Date(year, month, day);
     const dayOfWeek = date.getDay();
-    return dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
+    return dayOfWeek === 0 || dayOfWeek === 6;
 }
 
 // Check if date is holiday
 function isHoliday(year, month, day) {
-    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dateString = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
     return HOLIDAYS_2026.includes(dateString);
 }
 
 // Format date as "x-Mon"
 function formatDate(day, month) {
-    return `${day}-${MONTH_ABBR[month]}`;
+    return day + '-' + MONTH_ABBR[month];
 }
 
 // Render Calendar Table
@@ -79,10 +98,8 @@ function renderCalendar() {
     const month = currentMonth;
     const daysInMonth = getDaysInMonth(year, month);
     
-    // Clear table
     table.innerHTML = '';
     
-    // Create header row with dates
     const headerRow = document.createElement('tr');
     headerRow.innerHTML = '<th class="name-header">Name</th>';
     
@@ -91,7 +108,7 @@ function renderCalendar() {
         const date = new Date(year, month, day);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         
-        th.innerHTML = `${formatDate(day, month)}<br><small>${dayName}</small>`;
+        th.innerHTML = formatDate(day, month) + '<br><small>' + dayName + '</small>';
         
         if (isWeekend(year, month, day)) {
             th.classList.add('weekend-header');
@@ -104,28 +121,24 @@ function renderCalendar() {
     
     table.appendChild(headerRow);
     
-    // Create rows for each user
     Object.keys(USERS).forEach(userCode => {
         const row = document.createElement('tr');
         row.dataset.user = userCode;
         
-        // Highlight current user's row
         if (currentLoggedInUser && currentLoggedInUser.code === userCode) {
             row.classList.add('current-user-row');
         }
         
-        // Name cell
         const nameCell = document.createElement('td');
         nameCell.className = 'name-cell';
         nameCell.textContent = userCode;
         row.appendChild(nameCell);
         
-        // Date cells
         for (let day = 1; day <= daysInMonth; day++) {
             const cell = document.createElement('td');
             cell.className = 'date-cell';
             cell.dataset.user = userCode;
-            cell.dataset.date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            cell.dataset.date = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             cell.dataset.day = day;
             cell.dataset.month = month;
             
@@ -139,23 +152,18 @@ function renderCalendar() {
                 cell.classList.add('holiday');
                 cell.textContent = formatDate(day, month);
             } else {
-                // Check if user can edit this cell
                 const canEdit = canEditRow(userCode);
                 const dateKey = cell.dataset.date;
                 
-                // CHANGED: Show saved status for ALL users (everyone can view all data)
                 const savedStatus = attendanceData[userCode] && attendanceData[userCode][dateKey];
                 
                 if (savedStatus) {
-                    // Cell has status - apply it (VISIBLE TO ALL USERS)
                     cell.classList.add(savedStatus);
                     cell.textContent = formatDate(day, month);
                 } else {
-                    // No status - just show date
                     cell.textContent = formatDate(day, month);
                 }
                 
-                // Add lock icon for non-editable cells
                 if (!canEdit) {
                     cell.classList.add('locked');
                     const lockIcon = document.createElement('span');
@@ -164,7 +172,6 @@ function renderCalendar() {
                     cell.insertBefore(lockIcon, cell.firstChild);
                 }
                 
-                // Add click event ONLY for editable cells
                 if (canEdit) {
                     cell.addEventListener('click', () => handleCellClick(cell, userCode, dateKey, day, month));
                 }
@@ -176,7 +183,6 @@ function renderCalendar() {
         table.appendChild(row);
     });
     
-    // Update month selector
     document.getElementById('monthSelector').value = currentMonth;
 }
 
@@ -186,22 +192,19 @@ function handleCellClick(cell, userCode, dateKey, day, month) {
         return;
     }
     
-    // Create dropdown
     const existingSelect = cell.querySelector('select');
     if (existingSelect) {
-        return; // Already showing dropdown
+        return;
     }
     
     const select = document.createElement('select');
     select.className = 'status-select';
     
-    // Add default option
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = '-- Select --';
     select.appendChild(defaultOption);
     
-    // Add status options
     STATUS_OPTIONS.forEach(status => {
         const option = document.createElement('option');
         option.value = status.value;
@@ -209,12 +212,10 @@ function handleCellClick(cell, userCode, dateKey, day, month) {
         select.appendChild(option);
     });
     
-    // Set current value
     if (attendanceData[userCode] && attendanceData[userCode][dateKey]) {
         select.value = attendanceData[userCode][dateKey];
     }
     
-    // Handle change
     select.addEventListener('change', (e) => {
         const newStatus = e.target.value;
         updateCellStatus(cell, userCode, dateKey, newStatus, day, month);
@@ -222,7 +223,6 @@ function handleCellClick(cell, userCode, dateKey, day, month) {
         renderCellContent(cell, userCode, dateKey, day, month);
     });
     
-    // Handle blur
     select.addEventListener('blur', () => {
         setTimeout(() => {
             if (document.activeElement !== select) {
@@ -232,7 +232,6 @@ function handleCellClick(cell, userCode, dateKey, day, month) {
         }, 200);
     });
     
-    // Replace cell content with dropdown
     cell.innerHTML = '';
     cell.appendChild(select);
     select.focus();
@@ -250,7 +249,6 @@ function updateCellStatus(cell, userCode, dateKey, status, day, month) {
         delete attendanceData[userCode][dateKey];
     }
     
-    // Track pending changes
     if (!pendingChanges[userCode]) {
         pendingChanges[userCode] = {};
     }
@@ -266,21 +264,15 @@ function updateCellStatus(cell, userCode, dateKey, status, day, month) {
 function renderCellContent(cell, userCode, dateKey, day, month) {
     const canEdit = canEditRow(userCode);
     
-    // Clear cell
     cell.innerHTML = '';
-    
-    // Remove all status classes
     cell.classList.remove('wfo', 'planned', 'offsite', 'travel', 'leave');
     
-    // CHANGED: Check for saved status for ALL users (everyone can view)
     const savedStatus = attendanceData[userCode] && attendanceData[userCode][dateKey];
     
     if (savedStatus) {
-        // Has status - apply color (VISIBLE TO ALL)
         cell.classList.add(savedStatus);
     }
     
-    // Add lock icon for non-editable cells
     if (!canEdit) {
         const lockIcon = document.createElement('span');
         lockIcon.className = 'lock-icon';
@@ -288,7 +280,6 @@ function renderCellContent(cell, userCode, dateKey, day, month) {
         cell.appendChild(lockIcon);
     }
     
-    // Add date text
     const dateText = document.createTextNode(formatDate(day, month));
     cell.appendChild(dateText);
 }
@@ -299,22 +290,21 @@ function submitAttendance() {
         return;
     }
     
-    saveAttendanceData();
-    pendingChanges = {};
-    hasUnsavedChanges = false;
-    
-    document.getElementById('submitBtn').disabled = false;
-    document.getElementById('pendingChanges').style.display = 'none';
-    
-    // Show success message
-    const successMsg = document.getElementById('successMessage');
-    successMsg.style.display = 'block';
-    setTimeout(() => {
-        successMsg.style.display = 'none';
-    }, 3000);
-    
-    // Update and show statistics
-    updateStats();
+    saveAttendanceData().then(() => {
+        pendingChanges = {};
+        hasUnsavedChanges = false;
+        
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('pendingChanges').style.display = 'none';
+        
+        const successMsg = document.getElementById('successMessage');
+        successMsg.style.display = 'block';
+        setTimeout(() => {
+            successMsg.style.display = 'none';
+        }, 3000);
+        
+        updateStats();
+    });
 }
 
 // Change Month
@@ -334,12 +324,10 @@ function changeMonth() {
     
     currentMonth = newMonth;
     renderCalendar();
-    
-    // Check if stats should be displayed for this month
     checkAndDisplayStats();
 }
 
-// Check and display stats if data exists for current user and month
+// Check and display stats
 function checkAndDisplayStats() {
     if (!currentLoggedInUser) return;
     
@@ -348,10 +336,9 @@ function checkAndDisplayStats() {
     const month = currentMonth;
     const daysInMonth = getDaysInMonth(year, month);
     
-    // Check if user has any submitted data for this month
     let hasData = false;
     for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateKey = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         if (attendanceData[userCode] && attendanceData[userCode][dateKey]) {
             hasData = true;
             break;
@@ -385,7 +372,7 @@ function updateStats() {
     };
     
     for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateKey = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         
         if (!isWeekend(year, month, day) && !isHoliday(year, month, day)) {
             stats.total++;
@@ -401,53 +388,51 @@ function updateStats() {
     
     const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long' });
     
-    statsContainer.innerHTML = `
-        <h3>Your Statistics for ${monthName} 2026</h3>
-        <div class="stats-grid">
-            <div class="stat-item wfo-stat">
-                <div class="stat-color wfo-color"></div>
-                <div>
-                    <div class="stat-label">WFO</div>
-                    <div class="stat-value">${stats.wfo} days</div>
-                </div>
-            </div>
-            <div class="stat-item planned-stat">
-                <div class="stat-color planned-color"></div>
-                <div>
-                    <div class="stat-label">Planned</div>
-                    <div class="stat-value">${stats.planned} days</div>
-                </div>
-            </div>
-            <div class="stat-item offsite-stat">
-                <div class="stat-color offsite-color"></div>
-                <div>
-                    <div class="stat-label">Offsite/Meeting</div>
-                    <div class="stat-value">${stats.offsite} days</div>
-                </div>
-            </div>
-            <div class="stat-item travel-stat">
-                <div class="stat-color travel-color"></div>
-                <div>
-                    <div class="stat-label">Onsite/Travel</div>
-                    <div class="stat-value">${stats.travel} days</div>
-                </div>
-            </div>
-            <div class="stat-item leave-stat">
-                <div class="stat-color leave-color"></div>
-                <div>
-                    <div class="stat-label">Leave</div>
-                    <div class="stat-value">${stats.leave} days</div>
-                </div>
-            </div>
-            <div class="stat-item total-stat">
-                <div class="stat-color total-color"></div>
-                <div>
-                    <div class="stat-label">Working Days</div>
-                    <div class="stat-value">${stats.total} days</div>
-                </div>
-            </div>
-        </div>
-    `;
+    statsContainer.innerHTML = '<h3>Your Statistics for ' + monthName + ' 2026</h3>' +
+        '<div class="stats-grid">' +
+            '<div class="stat-item wfo-stat">' +
+                '<div class="stat-color wfo-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">WFO</div>' +
+                    '<div class="stat-value">' + stats.wfo + ' days</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="stat-item planned-stat">' +
+                '<div class="stat-color planned-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">Planned</div>' +
+                    '<div class="stat-value">' + stats.planned + ' days</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="stat-item offsite-stat">' +
+                '<div class="stat-color offsite-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">Offsite/Meeting</div>' +
+                    '<div class="stat-value">' + stats.offsite + ' days</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="stat-item travel-stat">' +
+                '<div class="stat-color travel-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">Onsite/Travel</div>' +
+                    '<div class="stat-value">' + stats.travel + ' days</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="stat-item leave-stat">' +
+                '<div class="stat-color leave-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">Leave</div>' +
+                    '<div class="stat-value">' + stats.leave + ' days</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="stat-item total-stat">' +
+                '<div class="stat-color total-color"></div>' +
+                '<div>' +
+                    '<div class="stat-label">Working Days</div>' +
+                    '<div class="stat-value">' + stats.total + ' days</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
     
     statsContainer.style.display = 'block';
 }
@@ -467,18 +452,18 @@ function generateReport() {
     const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long' });
     const daysInMonth = getDaysInMonth(year, month);
     
-    let reportHTML = `<h3>Attendance Report - ${monthName} 2026</h3>`;
-    reportHTML += `<div class="report-table-wrapper">`;
-    reportHTML += `<table class="report-table">`;
-    reportHTML += `<thead><tr>`;
-    reportHTML += `<th>User</th>`;
-    reportHTML += `<th>WFO</th>`;
-    reportHTML += `<th>Planned</th>`;
-    reportHTML += `<th>Offsite</th>`;
-    reportHTML += `<th>Travel</th>`;
-    reportHTML += `<th>Leave</th>`;
-    reportHTML += `<th>Total Days</th>`;
-    reportHTML += `</tr></thead><tbody>`;
+    let reportHTML = '<h3>Attendance Report - ' + monthName + ' 2026</h3>';
+    reportHTML += '<div class="report-table-wrapper">';
+    reportHTML += '<table class="report-table">';
+    reportHTML += '<thead><tr>';
+    reportHTML += '<th>User</th>';
+    reportHTML += '<th>WFO</th>';
+    reportHTML += '<th>Planned</th>';
+    reportHTML += '<th>Offsite</th>';
+    reportHTML += '<th>Travel</th>';
+    reportHTML += '<th>Leave</th>';
+    reportHTML += '<th>Total Days</th>';
+    reportHTML += '</tr></thead><tbody>';
     
     Object.keys(USERS).forEach(userCode => {
         let stats = {
@@ -491,7 +476,7 @@ function generateReport() {
         };
         
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateKey = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             
             if (!isWeekend(year, month, day) && !isHoliday(year, month, day)) {
                 stats.total++;
@@ -505,18 +490,18 @@ function generateReport() {
             }
         }
         
-        reportHTML += `<tr>`;
-        reportHTML += `<td><strong>${userCode}</strong></td>`;
-        reportHTML += `<td>${stats.wfo}</td>`;
-        reportHTML += `<td>${stats.planned}</td>`;
-        reportHTML += `<td>${stats.offsite}</td>`;
-        reportHTML += `<td>${stats.travel}</td>`;
-        reportHTML += `<td>${stats.leave}</td>`;
-        reportHTML += `<td><strong>${stats.total}</strong></td>`;
-        reportHTML += `</tr>`;
+        reportHTML += '<tr>';
+        reportHTML += '<td><strong>' + userCode + '</strong></td>';
+        reportHTML += '<td>' + stats.wfo + '</td>';
+        reportHTML += '<td>' + stats.planned + '</td>';
+        reportHTML += '<td>' + stats.offsite + '</td>';
+        reportHTML += '<td>' + stats.travel + '</td>';
+        reportHTML += '<td>' + stats.leave + '</td>';
+        reportHTML += '<td><strong>' + stats.total + '</strong></td>';
+        reportHTML += '</tr>';
     });
     
-    reportHTML += `</tbody></table></div>`;
+    reportHTML += '</tbody></table></div>';
     
     reportContent.innerHTML = reportHTML;
     modal.style.display = 'block';
@@ -534,42 +519,39 @@ function exportToCSV() {
     const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long' });
     const daysInMonth = getDaysInMonth(year, month);
     
-    let csv = `Attendance Report - ${monthName} 2026\n\n`;
-    csv += `User,`;
+    let csv = 'Attendance Report - ' + monthName + ' 2026\n\n';
+    csv += 'User,';
     
-    // Header with dates
     for (let day = 1; day <= daysInMonth; day++) {
-        csv += `${formatDate(day, month)},`;
+        csv += formatDate(day, month) + ',';
     }
-    csv += `\n`;
+    csv += '\n';
     
-    // Data rows
     Object.keys(USERS).forEach(userCode => {
-        csv += `${userCode},`;
+        csv += userCode + ',';
         
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateKey = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             
             if (isWeekend(year, month, day)) {
-                csv += `Weekend,`;
+                csv += 'Weekend,';
             } else if (isHoliday(year, month, day)) {
-                csv += `Holiday,`;
+                csv += 'Holiday,';
             } else if (attendanceData[userCode] && attendanceData[userCode][dateKey]) {
-                csv += `${attendanceData[userCode][dateKey].toUpperCase()},`;
+                csv += attendanceData[userCode][dateKey].toUpperCase() + ',';
             } else {
-                csv += `-,`;
+                csv += '-,';
             }
         }
         
-        csv += `\n`;
+        csv += '\n';
     });
     
-    // Download
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Attendance_${monthName}_2026.csv`;
+    a.download = 'Attendance_' + monthName + '_2026.csv';
     a.click();
     window.URL.revokeObjectURL(url);
 }
@@ -581,8 +563,8 @@ function exportReportToCSV() {
     const monthName = new Date(year, month).toLocaleDateString('en-US', { month: 'long' });
     const daysInMonth = getDaysInMonth(year, month);
     
-    let csv = `Comprehensive Attendance Report - ${monthName} 2026\n\n`;
-    csv += `User,WFO,Planned,Offsite,Travel,Leave,Total Working Days\n`;
+    let csv = 'Comprehensive Attendance Report - ' + monthName + ' 2026\n\n';
+    csv += 'User,WFO,Planned,Offsite,Travel,Leave,Total Working Days\n';
     
     Object.keys(USERS).forEach(userCode => {
         let stats = {
@@ -595,7 +577,7 @@ function exportReportToCSV() {
         };
         
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateKey = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             
             if (!isWeekend(year, month, day) && !isHoliday(year, month, day)) {
                 stats.total++;
@@ -609,15 +591,14 @@ function exportReportToCSV() {
             }
         }
         
-        csv += `${userCode},${stats.wfo},${stats.planned},${stats.offsite},${stats.travel},${stats.leave},${stats.total}\n`;
+        csv += userCode + ',' + stats.wfo + ',' + stats.planned + ',' + stats.offsite + ',' + stats.travel + ',' + stats.leave + ',' + stats.total + '\n';
     });
     
-    // Download
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Report_${monthName}_2026.csv`;
+    a.download = 'Report_' + monthName + '_2026.csv';
     a.click();
     window.URL.revokeObjectURL(url);
 }

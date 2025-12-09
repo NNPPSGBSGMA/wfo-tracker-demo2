@@ -361,7 +361,7 @@ input[type="password"]:focus {
 }
 
 #attendanceTable tr.current-user-row td.name-cell::before {
-    
+    content: '👤 ';
     font-size: 14px;
 }
 

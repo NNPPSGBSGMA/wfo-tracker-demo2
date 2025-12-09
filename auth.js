@@ -63,7 +63,7 @@ function handleLogin(event) {
         document.getElementById('mainApp').style.display = 'block';
         
         // Update user display
-        document.getElementById('displayUserCode').textContent = `User: ${code}`;
+        document.getElementById('displayUserCode').textContent = 'User: ' + code;
         document.getElementById('securityUserCode').textContent = code;
         
         // Show admin notice and report button if admin
