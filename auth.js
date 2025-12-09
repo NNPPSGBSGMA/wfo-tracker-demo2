@@ -33,7 +33,7 @@ const USERS = {
     'USRJ': { password: 'Usrj@2026%Gma', isAdmin: false, name: 'USRJ' },
     'SYDQ': { password: 'Sydq$2026&Pps', isAdmin: false, name: 'SYDQ' },
     'GVMR': { password: 'Gvmr#2026*Gbs', isAdmin: false, name: 'GVMR' },
-    'NUMT': { password: 'Numt!2026@Med', isAdmin: true, name: 'NUMT' },
+    'NUMT': { password: 'Numt!2026@Med', isAdmin: false, name: 'NUMT' },
     'MGVM': { password: 'Mgvm@2026!Aff', isAdmin: false, name: 'MGVM' },
     'JVMC': { password: 'Jvmc$2026#Blr', isAdmin: false, name: 'JVMC' },
     'SIZR': { password: 'Sizr#2026$Ind', isAdmin: false, name: 'SIZR' },
