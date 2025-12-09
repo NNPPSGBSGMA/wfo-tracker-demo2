@@ -361,7 +361,7 @@ input[type="password"]:focus {
 }
 
 #attendanceTable tr.current-user-row td.name-cell::before {
-    content: '👤 ';
+    content: '? ';
     font-size: 14px;
 }
 
@@ -370,7 +370,7 @@ input[type="password"]:focus {
     border: 2px solid #ffe082;
 }
 
-#attendanceTable tr.current-user-row td.date-cell:not(.weekend):not(.holiday):hover {
+#attendanceTable tr.current-user-row td.date-cell:not(.weekend):not(.holiday):hover:not(.locked) {
     background: #fff9c4 !important;
     box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
 }
@@ -424,20 +424,13 @@ input[type="password"]:focus {
     cursor: not-allowed;
 }
 
-/* Lock Icon */
+/* Lock Icon - appears WITH date */
 .lock-icon {
     position: absolute;
     top: 2px;
     right: 2px;
     font-size: 9px;
     opacity: 0.5;
-}
-
-/* Date Display */
-.date-display {
-    font-size: 11px;
-    color: #333;
-    font-weight: 500;
 }
 
 /* Status Colors */

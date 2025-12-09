@@ -3,7 +3,6 @@ const USERS = {
     'AJLO': { password: 'Ajlo$2026#Gma', isAdmin: true, name: 'AJLO' },
     'NRVL': { password: 'Nrvl@2026!Pps', isAdmin: false, name: 'NRVL' },
     'NHSM': { password: 'Nhsm#2026$Gbs', isAdmin: false, name: 'NHSM' },
-    'TBD': { password: 'Tbd@2026%Med', isAdmin: false, name: 'TBD' },
     'PCPH': { password: 'Pcph!2026&Aff', isAdmin: false, name: 'PCPH' },
     'SJAP': { password: 'Sjap$2026*Blr', isAdmin: false, name: 'SJAP' },
     'AUAJ': { password: 'Auaj#2026@Ind', isAdmin: false, name: 'AUAJ' },
@@ -63,7 +62,7 @@ function handleLogin(event) {
         document.getElementById('mainApp').style.display = 'block';
         
         // Update user display
-        document.getElementById('displayUserCode').textContent = 'User: ' + code;
+        document.getElementById('displayUserCode').textContent = `User: ${code}`;
         document.getElementById('securityUserCode').textContent = code;
         
         // Show admin notice and report button if admin
