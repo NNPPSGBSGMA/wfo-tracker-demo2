@@ -3,32 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Medical Affairs, P&PS GBS - Attendance 2026</title>
+    <title>GMA, P&PS GBS - Attendance 2026</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
-        <h2>GMA, P&PS GBS</h2>
-        <div class="error-message" id="errorMessage"></div>
-        <form class="login-form" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label for="userCode">Enter you Initials</label>
-                <input
-                    type="text"
-                    id="userCode"
-                    placeholder="XXXX"
-                    required
-                    maxlength="4"
-                    minlength="4"
-                    pattern="[a-zA-Z]{4}"
-                    title="Please enter exactly 4 letters"
-                    autocomplete="off"
-                >
-                <div class="form-hint">Please enter only your Initials to update the data</div>
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>GMA, P&PS GBS</h1>
+                <p>Attendance Tracker 2026 - Bangalore</p>
             </div>
-            <button type="submit" class="login-btn">Open the tracker</button>
-        </form>
+
+            <div class="login-error" id="loginError">
+                Invalid code or password. Please try again.
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="login-form-group">
+                    <label for="loginCode">Enter Your 4-Letter Code:</label>
+                    <input 
+                        type="text" 
+                        id="loginCode" 
+                        class="code-input-field"
+                        maxlength="4" 
+                        placeholder="XXXX"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="login-form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-submit-btn">Login to Tracker</button>
+            </form>
+
+            <p class="login-info">Please enter your assigned 4-letter code and unique password</p>
+        </div>
     </div>
 
     <!-- Main Application -->
@@ -41,18 +60,17 @@
             <div class="header-right">
                 <div class="user-info">
                     <div class="user-code" id="displayUserCode"></div>
-                    <div class="user-email" id="userEmail"></div>
                 </div>
-                <button class="logout-btn" onclick="window.location.href='login.html'">Logout</button>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
             </div>
         </div>
 
         <div class="security-notice">
-            🔒 <strong>Security Policy:</strong> You are logged in as <span id="securityUserCode" style="font-weight:bold;"></span>. You can ONLY view and edit your own attendance row. Select status from dropdown for each date.
+            🔒 <strong>Security Policy:</strong> You are logged in as <span id="securityUserCode" style="font-weight:bold;"></span>. You can ONLY edit your own attendance row. Select status from dropdown for each date.
         </div>
 
         <div class="admin-notice" id="adminNotice">
-            👑 <strong>Admin Access:</strong> You have administrator privileges. You can generate comprehensive reports for all team members.
+            👑 <strong>Admin Access:</strong> You have administrator privileges. You can view and edit all team members' attendance.
         </div>
 
         <div class="security-violation" id="securityViolation">
@@ -61,10 +79,6 @@
 
         <div class="success-message" id="successMessage">
             ✓ Your attendance has been saved successfully!
-        </div>
-
-        <div class="warning-message" id="warningMessage">
-            ⚠️ You can only edit your own attendance data!
         </div>
 
         <div class="action-bar">
@@ -84,14 +98,14 @@
                     <option value="11">December 2026</option>
                 </select>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <span class="pending-changes" id="pendingChanges" style="display: none;">
                     You have unsaved changes for <strong id="pendingUserCode"></strong>
                 </span>
                 <button class="submit-btn" id="submitBtn" onclick="submitAttendance()" disabled>
                     Submit My Attendance
                 </button>
-                <button class="report-btn" id="reportBtn" onclick="generateReport()">
+                <button class="report-btn" id="reportBtn" onclick="generateReport()" style="display: none;">
                     📊 Generate Report
                 </button>
                 <button class="export-btn" onclick="exportToCSV()">
@@ -106,7 +120,7 @@
             </table>
         </div>
 
-        <div class="stats" id="statsContainer">
+        <div class="stats" id="statsContainer" style="display: none;">
             <!-- Stats will be generated by JavaScript -->
         </div>
 
@@ -114,72 +128,65 @@
             <h3>GBS Holidays 2026 - National and Festival Holidays</h3>
             <div class="holidays-list">
                 <div class="holiday-item">
-                    <strong>15 January 2026</strong> (Thursday)<br>
-                    Makara Sankranti
+                    <strong>15 January 2026</strong> (Thursday) - Makara Sankranti
                 </div>
                 <div class="holiday-item">
-                    <strong>26 January 2026</strong> (Monday)<br>
-                    Republic Day
+                    <strong>26 January 2026</strong> (Monday) - Republic Day
                 </div>
                 <div class="holiday-item">
-                    <strong>19 March 2026</strong> (Thursday)<br>
-                    Ugadi Festival
+                    <strong>19 March 2026</strong> (Thursday) - Ugadi Festival
                 </div>
                 <div class="holiday-item">
-                    <strong>01 May 2026</strong> (Friday)<br>
-                    May Day
+                    <strong>01 May 2026</strong> (Friday) - May Day
                 </div>
                 <div class="holiday-item">
-                    <strong>28 May 2026</strong> (Thursday)<br>
-                    Bakrid
+                    <strong>28 May 2026</strong> (Thursday) - Bakrid
                 </div>
                 <div class="holiday-item">
-                    <strong>14 September 2026</strong> (Monday)<br>
-                    Ganesh Chaturthi
+                    <strong>14 September 2026</strong> (Monday) - Ganesh Chaturthi
                 </div>
                 <div class="holiday-item">
-                    <strong>02 October 2026</strong> (Friday)<br>
-                    Gandhi Jayanti
+                    <strong>02 October 2026</strong> (Friday) - Gandhi Jayanti
                 </div>
                 <div class="holiday-item">
-                    <strong>20 October 2026</strong> (Tuesday)<br>
-                    Ayudha Puja / Mahanavami
+                    <strong>20 October 2026</strong> (Tuesday) - Ayudha Puja / Mahanavami
                 </div>
                 <div class="holiday-item">
-                    <strong>10 November 2026</strong> (Tuesday)<br>
-                    Balipadyami / Deepavali
+                    <strong>10 November 2026</strong> (Tuesday) - Balipadyami / Deepavali
                 </div>
                 <div class="holiday-item">
-                    <strong>25 December 2026</strong> (Friday)<br>
-                    Christmas
+                    <strong>25 December 2026</strong> (Friday) - Christmas
                 </div>
             </div>
         </div>
 
         <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color planning"></div>
-                <span>Yellow - Planning to be in Office</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color office"></div>
-                <span>Green - Office Presence</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color leave"></div>
-                <span>Pink - Leave/Sick Leave</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color travel"></div>
-                <span>Blue - Traveling</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color weekend"></div>
-                <span>Grey - Weekend</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color holiday"></div>
-                <span>Dark Grey - Holiday (Non-changeable)</span>
+            <h3>Status Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color wfo-color"></div>
+                    <span><strong>WFO</strong> - Add Green shade, when you are in office</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color planned-color"></div>
+                    <span><strong>Planned</strong> - Add Yellow, when you are in a plan to be in office for upcoming days or weeks</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color offsite-color"></div>
+                    <span><strong>Offsite/All-day meeting</strong> - Add Purple, when you are in a Offsite/training session</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color travel-color"></div>
+                    <span><strong>Onsite/travel</strong> - Add Blue, when you are in a business travel</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color leave-color"></div>
+                    <span><strong>Leave</strong> - Add Pink, if you have planned or sick leave</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color holiday-color"></div>
+                    <span><strong>Holiday/Weekend</strong> - No action needed</span>
+                </div>
             </div>
         </div>
     </div>
@@ -200,6 +207,7 @@
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
